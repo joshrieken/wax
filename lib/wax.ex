@@ -130,8 +130,29 @@ defmodule Wax do
         end
       end
 
-    unless URI.parse(origin).host == "localhost" or URI.parse(origin).scheme == "https" do
-      raise "Invalid origin `#{origin}` (must be either https scheme or `localhost`)"
+    cond do
+      String.starts_with?(origin, "android") ->
+        parts = String.split(origin, ":")
+        cond do
+          length(parts) != 3 || parts[0] != "android" || parts[1] != "apk-key-hash" ->
+            raise "Invalid origin `#{origin}` (when using 'android', must be a well-formed FacetID with the hash of the APK signing certificate) "
+        end
+
+      String.starts_with?(origin, "ios") ->
+        parts = String.split(origin, ":")
+        cond do
+          length(parts) != 3 || parts[0] != "ios" || parts[1] != "bundle-id" ->
+            raise "Invalid origin `#{origin}` (when using 'ios', must be a well-formed FacetID with the application's BundleID URI) "
+        end
+
+      true ->
+        unless URI.parse(origin).host == "localhost" or URI.parse(origin).scheme == "https" do
+          raise "Invalid origin `#{origin}` (must be a valid URI) "
+        end
+    end
+
+    if opts[:rp_id] == :auto && (String.starts_with?(origin, "android") || String.starts_with?(origin, "ios")) do
+      raise "Cannot use :auto for rp_id when using an 'android' or 'ios' origin"
     end
 
     rp_id =
