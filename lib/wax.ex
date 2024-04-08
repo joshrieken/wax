@@ -133,16 +133,14 @@ defmodule Wax do
     cond do
       String.starts_with?(origin, "android") ->
         parts = String.split(origin, ":")
-        cond do
-          length(parts) != 3 || Enum.at(parts, 0) != "android" || Enum.at(parts, 1) != "apk-key-hash" ->
-            raise "Invalid origin `#{origin}` (when using 'android', must be a well-formed FacetID with the hash of the APK signing certificate) "
+        if length(parts) != 3 || Enum.at(parts, 0) != "android" || Enum.at(parts, 1) != "apk-key-hash" do
+          raise "Invalid origin `#{origin}` (when using 'android', must be a well-formed FacetID with the hash of the APK signing certificate) "
         end
 
       String.starts_with?(origin, "ios") ->
         parts = String.split(origin, ":")
-        cond do
-          length(parts) != 3 || Enum.at(parts, 0) != "ios" || Enum.at(parts, 1) != "bundle-id" ->
-            raise "Invalid origin `#{origin}` (when using 'ios', must be a well-formed FacetID with the application's BundleID URI) "
+        if length(parts) != 3 || Enum.at(parts, 0) != "ios" || Enum.at(parts, 1) != "bundle-id" do
+          raise "Invalid origin `#{origin}` (when using 'ios', must be a well-formed FacetID with the application's BundleID URI) "
         end
 
       true ->
